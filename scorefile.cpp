@@ -51,7 +51,7 @@ QString Scorefile::get_contents()
     return contents_;
 }
 
-void Scorefile::write_score(std::string name, bool win, int time)
+void Scorefile::write_score(std::string name, int score)
 {
     // TODO: read file into objects
     std::ifstream read_file(DEFAULT_FILENAME);
@@ -68,12 +68,15 @@ void Scorefile::write_score(std::string name, bool win, int time)
     // figure out where to place the new score
     auto correct_place = scores.begin();
     for (; correct_place != scores.end(); ++correct_place) {
-        auto &score = *correct_place;
+        auto &saved_score = *correct_place;
 
-        // TODO: when this score is worse than the new one, break
+        // when this score is worse than the new one, break
+        if (saved_score.get_score() < score) {
+            break;
+        }
     }
     if (correct_place != scores.end()) {
-        scores.insert(correct_place, Score(name, win, time));
+        scores.insert(correct_place, Score(name, score));
         scores.pop_back();
     }
 
@@ -91,28 +94,23 @@ void Scorefile::write_score(std::string name, bool win, int time)
 }
 
 
-Scorefile::Score::Score(std::string name, bool win, int time)
+Scorefile::Score::Score(std::string name, int score)
 {
     name_ = name;
-    win_ = win;
-    time_ = time;
+    score_ = score;
 }
 
 Scorefile::Score::Score(std::string line)
 {
     auto components = split(line, SEP, false);
-    if (components.at(0) == "1") win_ = true;
-    else win_ = false;
-    time_ = std::stoi(components.at(1));
+    score_ = std::stoi(components.at(1));
     name_ = components.at(2);
 }
 
 std::string Scorefile::Score::serialize()
 {
     std::stringstream stream;
-    stream << win_;
-    stream << SEP;
-    stream << time_;
+    stream << score_;
     stream << SEP;
     stream << name_;
 }

@@ -20,7 +20,14 @@
 #include "main_window.hh"
 #include <QGraphicsRectItem>
 #include <QKeyEvent>
+#include <QDir>
 
+const QPoint LEFT = QPoint(-1, 0);
+const QPoint UP = QPoint(0, -1);
+const QPoint RIGHT = QPoint(1, 0);
+const QPoint DOWN = QPoint(0, 1);
+
+const QPen pen(Qt::white, 0);
 
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent) {
@@ -32,34 +39,85 @@ MainWindow::MainWindow(QWidget* parent):
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* event) {
-    // TODO: Read the event to see which key got pressed and store the result.
-    // You can remove this function if you don't need it.
+   if (event->key() == Qt::Key_Up or event->key() == Qt::Key_W) dir_ = UP;
+   if (event->key() == Qt::Key_Left or event->key() == Qt::Key_A) dir_ = LEFT;
+   if (event->key() == Qt::Key_Down or event->key() == Qt::Key_S) dir_ = DOWN;
+   if (event->key() == Qt::Key_Right or event->key() == Qt::Key_D) dir_ = RIGHT;
 }
 
 void MainWindow::on_playButton_clicked() {
-    // EXAMPLE: How to create new graphics items in the scene.
-    const QRectF food_rect(0, 0, 1, 1);
-    const QPen pen(Qt::white, 0);
-    const QBrush brush(Qt::black);
-    food_ = scene_.addRect(food_rect, pen, brush);
-    food_->setPos(9, 5);
+    // button state switches, play and size off to prevent unintended behaviour
+    ui_.pauseButton->setEnabled(true);
+    ui_.restartButton->setEnabled(true);
+    ui_.playButton->setEnabled(false);
+    ui_.sizeButton->setEnabled(false);
+
+    // defaults - dir unset to prevent accidental snek moving
+    pause_state_ = false;
+    dir_ = QPoint(0, 0);
+    points_ = 0;
+
+    // seeding based on current time
+    long seed1 = std::chrono::system_clock::now().time_since_epoch().count();
+    rng_.seed(static_cast<unsigned>(seed1));
+
+    // food item generation
+    const QRectF rect(0, 0, 1, 1);
+    const QBrush food_brush(Qt::black);
+    food_ = scene_.addRect(rect, pen, food_brush);
+    moveFood();
+
+    // snek head generation
+    const QBrush snek_brush(QColor("#256B24"));
+    QGraphicsRectItem* head = scene_.addRect(rect, pen, snek_brush);
+    snek_.push_back(head);
+    head->setPos(area_width_ / 2, area_height_ / 2);
 
     adjustSceneArea();
     timer_.start(1000);
 }
 
 void MainWindow::moveSnake() {
-    // EXAMPLE: How to move a graphics item left in the scene.
-    const QPointF old_food_pos = food_->scenePos();
-    const QPointF new_food_pos = old_food_pos + QPoint(-1, 0);
-    food_->setPos(new_food_pos);
+    // propagate
+    auto it = snek_.rbegin();
+    for (; it != snek_.rend() - 1; ++it) {
+        auto elem = *it;
+        auto next = *(it + 1);
+        elem->setPos(next->pos());
+    }
+
+    auto head = snek_.front();
+    const QPointF old_head_pos = head->scenePos();
+    const QPointF new_head_pos = old_head_pos + dir_;
+    head->setPos(new_head_pos);
+
+    if (food_->scenePos() == head->scenePos()) {
+        points_ += 1;
+        moveFood();
+
+        const QRectF rect(0, 0, 1, 1);
+        // TODO pretty colours
+        const QBrush snek_brush(QColor("#253B24"));
+        QGraphicsRectItem* body = scene_.addRect(rect, pen, snek_brush);
+        body->setPos(snek_.front()->pos());
+        snek_.push_back(body);
+    }
 }
 
 void MainWindow::adjustSceneArea() {
-    // TODO: Replace the area's size with the play field's actual size.
-    const QRectF area(0, 0, 10, 10);
+    const QRectF area(0, 0, area_width_, area_height_);
     scene_.setSceneRect(area);
     ui_.graphicsView->fitInView(area);
+}
+
+void MainWindow::moveFood()
+{
+    int new_food_hpos = static_cast<int>(rng_()) % area_width_;
+    int new_food_vpos = static_cast<int>(rng_()) % area_height_;
+
+    //TODO after snek gets long, check if food is in snek; if so, reroll
+
+    food_->setPos(new_food_hpos, new_food_vpos);
 }
 
 void MainWindow::on_howButton_clicked()
@@ -87,4 +145,32 @@ void MainWindow::on_scoresButton_clicked()
     auto text = file.get_contents();
 
     scoresBox.setText(text);
+}
+
+void MainWindow::on_pauseButton_clicked()
+{
+    if (!pause_state_) {
+        timer_.stop();
+        ui_.pauseButton->setText("Resume");
+        pause_state_ = true;
+    }
+    else {
+        timer_.start(1000);
+        ui_.pauseButton->setText("Pause");
+        pause_state_ = false;
+    }
+}
+
+void MainWindow::on_sizeButton_clicked()
+{
+    bool width_ok;
+    bool height_ok;
+    int new_width = QInputDialog::getInt(this, tr("Game area width"),
+                                            tr("Enter new game area width:"),
+                                            area_width_, 1, 50, 1, &width_ok);
+    int new_height = QInputDialog::getInt(this, tr("Game area height"),
+                                          tr("Enter new game area height:"),
+                                          area_height_, 1, 50, 1, &height_ok);
+    if (width_ok) area_width_ = new_width;
+    if (height_ok) area_height_ = new_height;
 }

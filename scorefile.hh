@@ -12,20 +12,20 @@ public:
     Scorefile();
     // returns file contents
     QString get_contents();
-    void write_score(std::string name, bool win, int time);
+    void write_score(std::string name, int score);
 
 private:
     class Score {
     public:
-        Score(std::string name, bool win, int time);
+        Score(std::string name, int score);
         // get from string
         Score(std::string line);
 
         std::string serialize();
+        int get_score() {return score_;}
     private:
         std::string name_;
-        bool win_;
-        int time_;
+        int score_;
     };
 
     QString contents_;

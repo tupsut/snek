@@ -28,6 +28,8 @@
 #include <QTimer>
 #include <random>
 #include <QMessageBox>
+#include <QInputDialog>
+#include <vector>
 
 
 /* \class MainWindow
@@ -48,7 +50,7 @@ public:
      */
     ~MainWindow() override = default;
 
-    /* \brief Change the Snake's bearing when certain keys get pressed.
+    /* \brief Change the snek's bearing when certain keys get pressed.
      *
      * \param[in] event Contains data on pressed and released keys.
      */
@@ -61,10 +63,10 @@ private slots:
      */
     void on_playButton_clicked();
 
-    /* \brief Move the Snake by a square and check for collisions.
+    /* \brief Move the snek by a square and check for collisions.
      *
-     * The game ends if a wall or the Snake itself gets in the way.
-     * When a food gets eaten a point is gained and the Snake grows.
+     * The game ends if a wall or the snek itself gets in the way.
+     * When a food gets eaten a point is gained and the snek grows.
      */
     void moveSnake();
 
@@ -72,6 +74,10 @@ private slots:
     void on_howButton_clicked();
 
     void on_scoresButton_clicked();
+
+    void on_pauseButton_clicked();
+
+    void on_sizeButton_clicked();
 
 private:
 
@@ -81,12 +87,23 @@ private:
      */
     void adjustSceneArea();
 
-    Ui::MainWindow ui_;                 /**< Accesses the UI widgets. */
-    QGraphicsRectItem* food_ = nullptr; /**< The food item in the scene. */
-    QGraphicsScene scene_;              /**< Manages drawable objects. */
-    QTimer timer_;                      /**< Triggers the Snake to move. */
-    std::default_random_engine rng_;    /**< Randomizes food locations. */
+    /* \brief Randomly generates a new location for the food after it has been
+     * eaten.
+     */
+    void moveFood();
 
+
+    Ui::MainWindow ui_;                     /**< Accesses the UI widgets. */
+    QGraphicsRectItem* food_ = nullptr;     /**< The food item in the scene. */
+    std::vector<QGraphicsRectItem*> snek_;  /**< snek in the scene. */
+    QGraphicsScene scene_;                  /**< Manages drawable objects. */
+    QTimer timer_;                          /**< Triggers the snek to move. */
+    std::default_random_engine rng_;        /**< Randomizes food locations. */
+    QPoint dir_;                            /**< Current direction of motion. */
+    bool pause_state_;                      /**< Is game currently paused? */
+    int points_;                            /**< Counter for eaten food. */
+    int area_width_ = 20;
+    int area_height_ = 20;
 };  // class MainWindow
 
 
