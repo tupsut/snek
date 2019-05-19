@@ -38,6 +38,11 @@ MainWindow::MainWindow(QWidget* parent):
     connect(&timer_, &QTimer::timeout, this, &MainWindow::moveSnake);
 }
 
+MainWindow::~MainWindow()
+{
+    delete snek_;
+}
+
 void MainWindow::keyPressEvent(QKeyEvent* event) {
    if ((event->key() == Qt::Key_Up or event->key() == Qt::Key_W)
            and dir_ != DOWN) dir_ = UP;
@@ -65,19 +70,15 @@ void MainWindow::on_playButton_clicked() {
     long seed1 = std::chrono::system_clock::now().time_since_epoch().count();
     rng_.seed(static_cast<unsigned>(seed1));
 
+    // create snek and head
+    snek_ = new Snek(this, &scene_, area_width_, area_height_);
+
     // food item generation
     const QRectF rect(0, 0, 1, 1);
     const QBrush food_brush(Qt::black);
     food_ = scene_.addRect(rect, pen, food_brush);
     moveFood();
 
-    // snek head generation
-    const QBrush snek_brush(QColor("#256B24"));
-    QGraphicsRectItem* head = scene_.addRect(rect, pen, snek_brush);
-    snek_.push_back(head);
-    head->setPos(area_width_ / 2, area_height_ / 2);
-    // head should always be visible over a new tail segment so it has higher Z
-    head->setZValue(1);
 
     adjustSceneArea();
     timer_.start(timer_value_);
@@ -85,36 +86,19 @@ void MainWindow::on_playButton_clicked() {
 
 void MainWindow::moveSnake() {
     // propagate body elements' locations
-    auto it = snek_.rbegin();
-    for (; it != snek_.rend() - 1; ++it) {
-        auto elem = *it;
-        auto next = *(it + 1);
-        elem->setPos(next->pos());
-    }
+    snek_->propagate_tail();
 
     // update head location
-    auto head = snek_.front();
-    const QPointF old_head_pos = head->scenePos();
-    const QPointF new_head_pos = old_head_pos + dir_;
-    head->setPos(new_head_pos);
-
-    // continuous playfield; out of bounds -> head moves to opposite side
-    if (head->x() > area_width_-1) head->setPos(0, new_head_pos.y());
-    if (head->x() < 0) head->setPos(area_width_-1, new_head_pos.y());
-    if (head->y() > area_height_-1) head->setPos(new_head_pos.x(), 0);
-    if (head->y() < 0) head->setPos(new_head_pos.x(), area_height_-1);
+    snek_->move_head(dir_);
 
     // food eating behaviour
-    if (food_->scenePos() == head->scenePos()) {
+    if (food_->scenePos() == snek_->head_position()) {
         points_ += 1;
         moveFood();
+
         // generate new snek segment
-        const QRectF rect(0, 0, 1, 1);
-        // TODO pretty colours
-        const QBrush snek_brush(QColor("#253B24"));
-        QGraphicsRectItem* body = scene_.addRect(rect, pen, snek_brush);
-        body->setPos(snek_.front()->pos());
-        snek_.push_back(body);
+        snek_->extend();
+
         // difficulty increase
         timer_.stop();
         if (timer_value_ > 50) timer_value_ -= 3;
@@ -130,12 +114,13 @@ void MainWindow::adjustSceneArea() {
 
 void MainWindow::moveFood()
 {
-    int new_food_hpos = static_cast<int>(rng_()) % area_width_;
-    int new_food_vpos = static_cast<int>(rng_()) % area_height_;
-
-    //TODO after snek gets long, check if food is in snek; if so, reroll
-
-    food_->setPos(new_food_hpos, new_food_vpos);
+    QPoint new_loc = QPoint();
+    while (true) {
+        new_loc.setX(static_cast<int>(rng_()) % area_width_);
+        new_loc.setY(static_cast<int>(rng_()) % area_height_);
+        if (!snek_->is_occupied(new_loc)) break;
+    }
+    food_->setPos(new_loc);
 }
 
 void MainWindow::on_howButton_clicked()

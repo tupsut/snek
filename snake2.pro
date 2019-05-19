@@ -27,11 +27,13 @@ CONFIG += c++14
 SOURCES += \
         main.cpp \
         main_window.cpp \
-        scorefile.cpp
+        scorefile.cpp \
+        snek.cpp
 
 HEADERS += \
         main_window.hh \
-        scorefile.hh
+        scorefile.hh \
+        snek.hh
 
 FORMS += \
     main_window.ui

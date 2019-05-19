@@ -20,6 +20,7 @@
 #ifndef PRG2_SNAKE2_MAINWINDOW_HH
 #define PRG2_SNAKE2_MAINWINDOW_HH
 
+#include "snek.hh"
 #include "ui_main_window.h"
 #include "scorefile.hh"
 
@@ -48,7 +49,7 @@ public:
 
     /* \brief Destruct a MainWindow.
      */
-    ~MainWindow() override = default;
+    ~MainWindow() override;
 
     /* \brief Change the snek's bearing when certain keys get pressed.
      *
@@ -95,7 +96,7 @@ private:
 
     Ui::MainWindow ui_;                     /**< Accesses the UI widgets. */
     QGraphicsRectItem* food_ = nullptr;     /**< The food item in the scene. */
-    std::vector<QGraphicsRectItem*> snek_;  /**< snek in the scene. */
+    Snek *snek_;
     QGraphicsScene scene_;                  /**< Manages drawable objects. */
     QTimer timer_;                          /**< Triggers the snek to move. */
     std::default_random_engine rng_;        /**< Randomizes food locations. */
