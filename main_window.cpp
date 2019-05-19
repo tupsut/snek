@@ -76,9 +76,11 @@ void MainWindow::on_playButton_clicked() {
     QGraphicsRectItem* head = scene_.addRect(rect, pen, snek_brush);
     snek_.push_back(head);
     head->setPos(area_width_ / 2, area_height_ / 2);
+    // head should always be visible over a new tail segment so it has higher Z
+    head->setZValue(1);
 
     adjustSceneArea();
-    timer_.start(1000);
+    timer_.start(timer_value_);
 }
 
 void MainWindow::moveSnake() {
@@ -96,11 +98,16 @@ void MainWindow::moveSnake() {
     const QPointF new_head_pos = old_head_pos + dir_;
     head->setPos(new_head_pos);
 
+    // continuous playfield; out of bounds -> head moves to opposite side
+    if (head->x() > area_width_-1) head->setPos(0, new_head_pos.y());
+    if (head->x() < 0) head->setPos(area_width_-1, new_head_pos.y());
+    if (head->y() > area_height_-1) head->setPos(new_head_pos.x(), 0);
+    if (head->y() < 0) head->setPos(new_head_pos.x(), area_height_-1);
+
     // food eating behaviour
     if (food_->scenePos() == head->scenePos()) {
         points_ += 1;
         moveFood();
-
         // generate new snek segment
         const QRectF rect(0, 0, 1, 1);
         // TODO pretty colours
@@ -108,9 +115,10 @@ void MainWindow::moveSnake() {
         QGraphicsRectItem* body = scene_.addRect(rect, pen, snek_brush);
         body->setPos(snek_.front()->pos());
         snek_.push_back(body);
-
-        // TODO ensure head is still visible over new segment
-
+        // difficulty increase
+        timer_.stop();
+        if (timer_value_ > 50) timer_value_ -= 3;
+        timer_.start(timer_value_);
     }
 }
 
@@ -165,7 +173,7 @@ void MainWindow::on_pauseButton_clicked()
         pause_state_ = true;
     }
     else {
-        timer_.start(1000);
+        timer_.start(timer_value_);
         ui_.pauseButton->setText("Pause");
         pause_state_ = false;
     }

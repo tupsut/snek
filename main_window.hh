@@ -102,8 +102,9 @@ private:
     QPoint dir_;                            /**< Current direction of motion. */
     bool pause_state_;                      /**< Is game currently paused? */
     int points_;                            /**< Counter for eaten food. */
-    int area_width_ = 20;
-    int area_height_ = 20;
+    int area_width_ = 20;                   /**< Current game area width. */
+    int area_height_ = 20;                  /**< Current game area height. */
+    int timer_value_ = 1000;                /**< Current value of timer. */
 };  // class MainWindow
 
 
