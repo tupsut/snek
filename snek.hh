@@ -36,6 +36,12 @@ public:
      * \param[in] point QPointF to be checked.
      */
     bool is_occupied(QPointF point) const;
+    /* \brief Returns a bool stating whether the head of the snek has collided
+     * with another segment of the body.
+     */
+    bool is_collision() const;
+
+    bool fills_screen(QPointF food_loc) const;
 
 private:
     std::vector<QGraphicsRectItem*> elements_;  /**< snek in the scene. */

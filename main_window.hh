@@ -80,6 +80,8 @@ private slots:
 
     void on_sizeButton_clicked();
 
+    void on_gameSecondElapsed();
+
 private:
 
     /* \brief Make the play field visible and fit it into the view.
@@ -93,19 +95,26 @@ private:
      */
     void moveFood();
 
+    /* \brief Handles game's end state.
+     */
+    void gameEnd(bool is_win);
+
 
     Ui::MainWindow ui_;                     /**< Accesses the UI widgets. */
     QGraphicsRectItem* food_ = nullptr;     /**< The food item in the scene. */
     Snek *snek_;
     QGraphicsScene scene_;                  /**< Manages drawable objects. */
     QTimer timer_;                          /**< Triggers the snek to move. */
+    QTimer game_timer_;
     std::default_random_engine rng_;        /**< Randomizes food locations. */
     QPoint dir_;                            /**< Current direction of motion. */
     bool pause_state_;                      /**< Is game currently paused? */
     int points_;                            /**< Counter for eaten food. */
     int area_width_ = 20;                   /**< Current game area width. */
     int area_height_ = 20;                  /**< Current game area height. */
-    int timer_value_ = 1000;                /**< Current value of timer. */
+    int timer_value_ = 800;                 /**< Current interval of timer. */
+    int timer_min_ = 150;                   /**< Minimum interval of timer. */
+    int game_time_elapsed_;
 };  // class MainWindow
 
 

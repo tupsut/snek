@@ -6,7 +6,8 @@
 Snek::Snek(QObject *parent, QGraphicsScene *scene, int area_width, int area_height) : QObject(parent), scene_(scene), area_width_(area_width), area_height_(area_height)
 {
     const QBrush snek_brush(QColor("#256B24"));
-    QGraphicsRectItem* head = scene->addRect(QRect(0, 0, 1, 1), QPen(Qt::white, 0), snek_brush);
+    QGraphicsRectItem* head = scene->addRect(QRect(0, 0, 1, 1),
+                                             QPen(Qt::white, 0), snek_brush);
     elements_.push_back(head);
     head->setPos(area_width / 2, area_height / 2);
     // head should always be visible over a new tail segment so it has higher Z
@@ -60,4 +61,25 @@ bool Snek::is_occupied(QPointF point) const
         }
     }
     return false;
+}
+
+bool Snek::is_collision() const
+{
+    auto head_position = this->head_position();
+    auto it = elements_.begin() + 1;
+    for (; it != elements_.end(); ++it) {
+        if (head_position == (*it)->pos()) return true;
+    }
+    return false;
+}
+
+bool Snek::fills_screen(QPointF food_loc) const
+{
+    for (float x = 0; x < area_width_; x += 1) {
+        for (float y = 0; y < area_height_; y += 1) {
+            QPointF here = QPointF(x, y);
+            if (!is_occupied(here) and here != food_loc) return false;
+        }
+    }
+    return true;
 }

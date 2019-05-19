@@ -21,13 +21,12 @@
 #include <QGraphicsRectItem>
 #include <QKeyEvent>
 #include <QDir>
+#include <string>
 
 const QPoint LEFT = QPoint(-1, 0);
 const QPoint UP = QPoint(0, -1);
 const QPoint RIGHT = QPoint(1, 0);
 const QPoint DOWN = QPoint(0, 1);
-
-const QPen pen(Qt::white, 0);
 
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent) {
@@ -40,7 +39,7 @@ MainWindow::MainWindow(QWidget* parent):
 
 MainWindow::~MainWindow()
 {
-    delete snek_;
+    if (snek_) delete snek_;
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* event) {
@@ -66,6 +65,11 @@ void MainWindow::on_playButton_clicked() {
     dir_ = QPoint(0, 0);
     points_ = 0;
 
+    game_time_elapsed_ = 0;
+    game_timer_.start(1000);
+
+    connect(&game_timer_, &QTimer::timeout, this, &MainWindow::on_gameSecondElapsed);
+
     // seeding based on current time
     long seed1 = std::chrono::system_clock::now().time_since_epoch().count();
     rng_.seed(static_cast<unsigned>(seed1));
@@ -76,9 +80,8 @@ void MainWindow::on_playButton_clicked() {
     // food item generation
     const QRectF rect(0, 0, 1, 1);
     const QBrush food_brush(Qt::black);
-    food_ = scene_.addRect(rect, pen, food_brush);
+    food_ = scene_.addRect(rect, QPen(Qt::white, 0), food_brush);
     moveFood();
-
 
     adjustSceneArea();
     timer_.start(timer_value_);
@@ -91,6 +94,16 @@ void MainWindow::moveSnake() {
     // update head location
     snek_->move_head(dir_);
 
+    if (snek_->is_collision()) {
+        gameEnd(false);
+        return;
+    }
+
+    if (snek_->fills_screen(food_->pos())) {
+        gameEnd(true);
+        return;
+    }
+
     // food eating behaviour
     if (food_->scenePos() == snek_->head_position()) {
         points_ += 1;
@@ -101,8 +114,9 @@ void MainWindow::moveSnake() {
 
         // difficulty increase
         timer_.stop();
-        if (timer_value_ > 50) timer_value_ -= 3;
+        if (timer_value_ > timer_min_) timer_value_ -= 5;
         timer_.start(timer_value_);
+
     }
 }
 
@@ -130,8 +144,8 @@ void MainWindow::on_howButton_clicked()
                    "<p>snek is a classic game best known from certain models of"
                    " Nokia cell phones from the 1990s and 2000s.</p>"
                    "<p>The objective of the game is to feed the snek until it "
-                   "fills the entire game area, without colliding into any "
-                   "obstacles or the snek itself in that time.</p>"
+                   "fills the entire game area, without colliding into itself "
+                   "in that time.</p>"
                    "<b>Control scheme:</b><br>"
                    "W: Up<br>"
                    "A: Left<br>"
@@ -152,13 +166,17 @@ void MainWindow::on_scoresButton_clicked()
 
 void MainWindow::on_pauseButton_clicked()
 {
+    // go on pause
     if (!pause_state_) {
         timer_.stop();
+        game_timer_.stop();
         ui_.pauseButton->setText("Resume");
         pause_state_ = true;
     }
+    // resume
     else {
         timer_.start(timer_value_);
+        game_timer_.start();
         ui_.pauseButton->setText("Pause");
         pause_state_ = false;
     }
@@ -176,4 +194,51 @@ void MainWindow::on_sizeButton_clicked()
                                           area_height_, 1, 50, 1, &height_ok);
     if (width_ok) area_width_ = new_width;
     if (height_ok) area_height_ = new_height;
+}
+
+void MainWindow::gameEnd(bool is_win)
+{
+    timer_.stop();
+    game_timer_.stop();
+    ui_.pauseButton->setEnabled(false);
+    ui_.restartButton->setEnabled(false);
+    // TODO fix so this actually works
+    ui_.playButton->setEnabled(true);
+    ui_.sizeButton->setEnabled(true);
+
+    if (is_win) {
+        QMessageBox winBox;
+        QString win_text = QString("Congratulations, you have won!\r\n")
+                + QString("Final score: ")
+                + QString::fromStdString(std::to_string(points_))
+                + QString(" points\r\nTime elapsed: ")
+                + QString::fromStdString(std::to_string(game_time_elapsed_))
+                + QString(" seconds");
+        winBox.setText(win_text);
+        winBox.exec();
+    }
+    else {
+        QMessageBox loseBox;
+        QString lose_text = QString("Unfortunately you have lost!\r\n")
+                + QString("Final score: ")
+                + QString::fromStdString(std::to_string(points_))
+                + QString(" points\r\nTime elapsed: ")
+                + QString::fromStdString(std::to_string(game_time_elapsed_))
+                + QString(" seconds");
+        loseBox.setText(lose_text);
+        loseBox.exec();
+    }
+    /*
+    bool ok;
+    QString name = QInputDialog::getText(this, tr("Enter name"),
+                                         tr("Please enter your name:"),
+                                         QLineEdit::Normal,
+                                         QDir::home().dirName(), &ok);
+                                         */
+    //Scorefile file;
+    //file.write_score(name.toUtf8().constData(), points_);
+}
+
+void MainWindow::on_gameSecondElapsed() {
+    game_time_elapsed_++;
 }
