@@ -66,20 +66,33 @@ private slots:
 
     /* \brief Move the snek by a square and check for collisions.
      *
-     * The game ends if a wall or the snek itself gets in the way.
+     * The game ends if the snek gets in its own way.
      * When a food gets eaten a point is gained and the snek grows.
      */
     void moveSnake();
 
-
+    /* \brief Show the in-game instructions.
+     */
     void on_howButton_clicked();
 
+    /* \brief Show the high scores table.
+     */
     void on_scoresButton_clicked();
 
+    /* \brief Pause or resume the game.
+     */
     void on_pauseButton_clicked();
 
+    /* \brief Clean-up and restart the game.
+     */
+    void on_restartButton_clicked();
+
+    /* \brief Adjust the game area.
+     */
     void on_sizeButton_clicked();
 
+    /* \brief Update the timer counting how long the game has taken.
+     */
     void on_gameSecondElapsed();
 
 private:
@@ -96,25 +109,28 @@ private:
     void moveFood();
 
     /* \brief Handles game's end state.
+     *
+     * param[in] is_win Whether the game was won or lost.
      */
     void gameEnd(bool is_win);
 
 
     Ui::MainWindow ui_;                     /**< Accesses the UI widgets. */
     QGraphicsRectItem* food_ = nullptr;     /**< The food item in the scene. */
-    Snek *snek_;
+    Snek *snek_;                            /**< Contains all snek parts. */
     QGraphicsScene scene_;                  /**< Manages drawable objects. */
     QTimer timer_;                          /**< Triggers the snek to move. */
-    QTimer game_timer_;
+    QTimer game_timer_;                     /**< Timer for counting time. */
     std::default_random_engine rng_;        /**< Randomizes food locations. */
     QPoint dir_;                            /**< Current direction of motion. */
     bool pause_state_;                      /**< Is game currently paused? */
     int points_;                            /**< Counter for eaten food. */
     int area_width_ = 20;                   /**< Current game area width. */
     int area_height_ = 20;                  /**< Current game area height. */
-    int timer_value_ = 800;                 /**< Current interval of timer. */
+    int init_timer_value_ = 800;            /**< Default interval of timer. */
+    int timer_value_;                       /**< Current interval of timer. */
     int timer_min_ = 150;                   /**< Minimum interval of timer. */
-    int game_time_elapsed_;
+    int game_time_elapsed_;                 /**< Counts the time elapsed. */
 };  // class MainWindow
 
 

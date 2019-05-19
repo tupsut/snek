@@ -35,6 +35,8 @@ MainWindow::MainWindow(QWidget* parent):
     ui_.graphicsView->setScene(&scene_);
 
     connect(&timer_, &QTimer::timeout, this, &MainWindow::moveSnake);
+    connect(&game_timer_, &QTimer::timeout, this,
+            &MainWindow::on_gameSecondElapsed);
 }
 
 MainWindow::~MainWindow()
@@ -64,11 +66,10 @@ void MainWindow::on_playButton_clicked() {
     pause_state_ = false;
     dir_ = QPoint(0, 0);
     points_ = 0;
+    timer_value_ = init_timer_value_;
 
     game_time_elapsed_ = 0;
     game_timer_.start(1000);
-
-    connect(&game_timer_, &QTimer::timeout, this, &MainWindow::on_gameSecondElapsed);
 
     // seeding based on current time
     long seed1 = std::chrono::system_clock::now().time_since_epoch().count();
@@ -159,9 +160,9 @@ void MainWindow::on_scoresButton_clicked()
     QMessageBox scoresBox;
 
     Scorefile file;
-    auto text = file.get_contents();
-
+    QString text = file.pretty();
     scoresBox.setText(text);
+    scoresBox.exec();
 }
 
 void MainWindow::on_pauseButton_clicked()
@@ -180,6 +181,13 @@ void MainWindow::on_pauseButton_clicked()
         ui_.pauseButton->setText("Pause");
         pause_state_ = false;
     }
+}
+
+void MainWindow::on_restartButton_clicked()
+{
+    delete snek_;
+    delete food_;
+    on_playButton_clicked();
 }
 
 void MainWindow::on_sizeButton_clicked()
@@ -201,9 +209,7 @@ void MainWindow::gameEnd(bool is_win)
     timer_.stop();
     game_timer_.stop();
     ui_.pauseButton->setEnabled(false);
-    ui_.restartButton->setEnabled(false);
-    // TODO fix so this actually works
-    ui_.playButton->setEnabled(true);
+    ui_.restartButton->setEnabled(true);
     ui_.sizeButton->setEnabled(true);
 
     if (is_win) {
@@ -228,15 +234,15 @@ void MainWindow::gameEnd(bool is_win)
         loseBox.setText(lose_text);
         loseBox.exec();
     }
-    /*
+
     bool ok;
     QString name = QInputDialog::getText(this, tr("Enter name"),
                                          tr("Please enter your name:"),
                                          QLineEdit::Normal,
                                          QDir::home().dirName(), &ok);
-                                         */
-    //Scorefile file;
-    //file.write_score(name.toUtf8().constData(), points_);
+
+    Scorefile file;
+    file.write_score(name.toUtf8().constData(), points_, game_time_elapsed_);
 }
 
 void MainWindow::on_gameSecondElapsed() {

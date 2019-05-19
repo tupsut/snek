@@ -14,6 +14,12 @@ Snek::Snek(QObject *parent, QGraphicsScene *scene, int area_width, int area_heig
     head->setZValue(1);
 }
 
+Snek::~Snek()
+{
+    for (auto &elem : elements_)
+        delete elem;
+}
+
 void Snek::propagate_tail()
 {
     auto it = elements_.rbegin();
@@ -73,12 +79,12 @@ bool Snek::is_collision() const
     return false;
 }
 
-bool Snek::fills_screen(QPointF food_loc) const
+bool Snek::fills_screen(QPointF food_pos) const
 {
     for (float x = 0; x < area_width_; x += 1) {
         for (float y = 0; y < area_height_; y += 1) {
             QPointF here = QPointF(x, y);
-            if (!is_occupied(here) and here != food_loc) return false;
+            if (!is_occupied(here) and here != food_pos) return false;
         }
     }
     return true;

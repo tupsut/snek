@@ -10,44 +10,60 @@ class Snek : public QObject
     Q_OBJECT
 
 public:
+
     /* \brief Construct a Snek.
      *
      * \param[in] parent The parent widget of the object.
      */
     explicit Snek(QObject *parent, QGraphicsScene *scene, int area_width,
                   int area_height);
+
+    /* \brief Destruct the Snek.
+     */
+    ~Snek();
+
     /* \brief Update the locations of snek segments other than the head.
      */
     void propagate_tail();
+
     /* \brief Update the location of snek head based on player input.
      *
      * \param[in] direction Directional QPoint to be added to current location.
      */
     void move_head(QPoint direction);
+
     /* \brief Return the current location of the snek's head.
      */
     QPointF head_position() const;
+
     /* \brief Add a new segment to the snek.
      */
     void extend();
+
     /* \brief Returns a bool stating whether the given position is occupied by
      * the snek.
      *
      * \param[in] point QPointF to be checked.
      */
     bool is_occupied(QPointF point) const;
+
     /* \brief Returns a bool stating whether the head of the snek has collided
      * with another segment of the body.
      */
     bool is_collision() const;
 
-    bool fills_screen(QPointF food_loc) const;
+    /* \brief Checks whether the snek fills all of the screen, except for the
+     * location of the food element.
+     *
+     * \param[in] food_pos Position of the food element.
+     */
+    bool fills_screen(QPointF food_pos) const;
 
 private:
-    std::vector<QGraphicsRectItem*> elements_;  /**< snek in the scene. */
+    std::vector<QGraphicsRectItem*> elements_;  /**< snek parts in the scene. */
     QGraphicsScene *scene_;                     /**< ptr to mainwindow scene. */
-    int area_width_;                            /**< Current game area width. */
-    int area_height_;                           /**< Current game area height. */
+    const int area_width_;                      /**< Game area width. */
+    const int area_height_;                     /**< Game area height. */
 };
 
 #endif // SNEK_HH
