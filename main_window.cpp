@@ -91,16 +91,21 @@ void MainWindow::moveSnake() {
     const QPointF new_head_pos = old_head_pos + dir_;
     head->setPos(new_head_pos);
 
+    // food eating behaviour
     if (food_->scenePos() == head->scenePos()) {
         points_ += 1;
         moveFood();
 
+        // generate new snek segment
         const QRectF rect(0, 0, 1, 1);
         // TODO pretty colours
         const QBrush snek_brush(QColor("#253B24"));
         QGraphicsRectItem* body = scene_.addRect(rect, pen, snek_brush);
         body->setPos(snek_.front()->pos());
         snek_.push_back(body);
+
+        // TODO ensure head is still visible over new segment
+
     }
 }
 
