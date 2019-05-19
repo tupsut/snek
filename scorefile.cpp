@@ -1,3 +1,22 @@
+/*
+####################################################################
+# TIE-02201 Ohjelmointi 2: Perusteet, K2019                        #
+# TIE-02207 Programming 2: Basics, S2019                           #
+#                                                                  #
+# Project4: snek: The Revengeance                                  #
+# Program description: "While revenge is served cold and vengeance #
+#                       is served hot revengeance is often seen    #
+#                       served with Cajun with a side of onion     #
+#                       rings and often dumplings in the Orient."  #
+#                       - urbandictionary                          #
+#                                                                  #
+# File: scorefile.cpp                                              #
+# Description: Defines a class implementing score files.           #
+#                                                                  #
+# Author: Saskia Simisker, 282598, saskia.simisker@tuni.fi         #
+####################################################################
+*/
+
 #include "scorefile.hh"
 #include <algorithm>
 #include <iostream>
@@ -8,7 +27,6 @@ const std::string DEFAULT_FILENAME = "scores.txt";
 const char SEP = ';';
 
 // split function borrowed from past weeks of the course
-// for the love of god start teaching a language that integrates split
 std::vector<std::string> split(const std::string& s, const char delimiter, bool
                                ignore_empty){
     std::vector<std::string> result;
@@ -33,17 +51,12 @@ std::vector<std::string> split(const std::string& s, const char delimiter, bool
 
 Scorefile::Scorefile()
 {
+    // test open file; if file is unavailable, print info into console
     std::ifstream file(DEFAULT_FILENAME);
     if (!file.is_open()) {
-        std::cout << DEFAULT_FILENAME << " can not be read or it might not exist"
+        std::cout << DEFAULT_FILENAME << " can not be read or might not exist"
                                          ", past scores can not be shown"
                   << std::endl;
-    }
-    else {
-        std::stringstream strStream;
-        std::string std_contents = strStream.str();
-        strStream << file.rdbuf();
-        contents_ = QString::fromStdString(std_contents);
     }
 }
 
@@ -60,7 +73,7 @@ void Scorefile::write_score(std::string name, int points, int time)
             break;
         }
 
-        // when this score is worse than the new one, and the time is worse, break
+        // when the score and time are worse than the new one, break
         if (saved_score.get_points() < points) {
             break;
         }
@@ -86,7 +99,7 @@ void Scorefile::write_score(std::string name, int points, int time)
 
 std::vector<Scorefile::Score> Scorefile::get_scores()
 {
-    // TODO: read file into objects
+    // read file into Score objects
     std::ifstream read_file(DEFAULT_FILENAME);
 
     std::vector<Score> scores;

@@ -100,7 +100,7 @@ void MainWindow::moveSnake() {
         return;
     }
 
-    if (snek_->fills_screen(food_->pos())) {
+    if (snek_->fills_screen()) {
         gameEnd(true);
         return;
     }
@@ -196,10 +196,10 @@ void MainWindow::on_sizeButton_clicked()
     bool height_ok;
     int new_width = QInputDialog::getInt(this, tr("Game area width"),
                                             tr("Enter new game area width:"),
-                                            area_width_, 1, 50, 1, &width_ok);
+                                            area_width_, 2, 50, 1, &width_ok);
     int new_height = QInputDialog::getInt(this, tr("Game area height"),
                                           tr("Enter new game area height:"),
-                                          area_height_, 1, 50, 1, &height_ok);
+                                          area_height_, 2, 50, 1, &height_ok);
     if (width_ok) area_width_ = new_width;
     if (height_ok) area_height_ = new_height;
 }
@@ -240,6 +240,7 @@ void MainWindow::gameEnd(bool is_win)
                                          tr("Please enter your name:"),
                                          QLineEdit::Normal,
                                          QDir::home().dirName(), &ok);
+    if (name == "") name = "unknown";
 
     Scorefile file;
     file.write_score(name.toUtf8().constData(), points_, game_time_elapsed_);

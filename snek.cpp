@@ -1,3 +1,22 @@
+/*
+####################################################################
+# TIE-02201 Ohjelmointi 2: Perusteet, K2019                        #
+# TIE-02207 Programming 2: Basics, S2019                           #
+#                                                                  #
+# Project4: snek: The Revengeance                                  #
+# Program description: "While revenge is served cold and vengeance #
+#                       is served hot revengeance is often seen    #
+#                       served with Cajun with a side of onion     #
+#                       rings and often dumplings in the Orient."  #
+#                       - urbandictionary                          #
+#                                                                  #
+# File: snek.cpp                                                   #
+# Description: Defines a class implementing the snek entity.       #
+#                                                                  #
+# Author: Saskia Simisker, 282598, saskia.simisker@tuni.fi         #
+####################################################################
+*/
+
 #include "snek.hh"
 
 #include <QBrush>
@@ -79,12 +98,12 @@ bool Snek::is_collision() const
     return false;
 }
 
-bool Snek::fills_screen(QPointF food_pos) const
+bool Snek::fills_screen() const
 {
-    for (float x = 0; x < area_width_; x += 1) {
-        for (float y = 0; y < area_height_; y += 1) {
+    for (qreal x = 0; x < area_width_; x += 1) {
+        for (qreal y = 0; y < area_height_; y += 1) {
             QPointF here = QPointF(x, y);
-            if (!is_occupied(here) and here != food_pos) return false;
+            if (!is_occupied(here)) return false;
         }
     }
     return true;

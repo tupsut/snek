@@ -1,3 +1,22 @@
+/*
+####################################################################
+# TIE-02201 Ohjelmointi 2: Perusteet, K2019                        #
+# TIE-02207 Programming 2: Basics, S2019                           #
+#                                                                  #
+# Project4: snek: The Revengeance                                  #
+# Program description: "While revenge is served cold and vengeance #
+#                       is served hot revengeance is often seen    #
+#                       served with Cajun with a side of onion     #
+#                       rings and often dumplings in the Orient."  #
+#                       - urbandictionary                          #
+#                                                                  #
+# File: scorefile.hh                                               #
+# Description: Declares a class implementing score files.          #
+#                                                                  #
+# Author: Saskia Simisker, 282598, saskia.simisker@tuni.fi         #
+####################################################################
+*/
+
 #ifndef SCOREFILE_HH
 #define SCOREFILE_HH
 #include <QString>
@@ -22,6 +41,8 @@ public:
      */
     void write_score(std::string name, int points, int time);
 
+    /* \brief Returns a printable version of the score list.
+     */
     QString pretty();
 
 private:
@@ -49,15 +70,15 @@ private:
          */
         std::string to_string();
 
+        /* \brief Returns the name associated with a score.
+         */
         std::string get_name() {return name_;}
 
         /* \brief Returns the points in a score.
-         *
          */
         int get_points() {return points_;}
 
         /* \brief Returns the time in a score.
-         *
          */
         int get_time() {return time_;}
 
@@ -67,11 +88,9 @@ private:
         int time_;          /**< Time elapsed, in seconds. */
     };
 
-    /* \brief Read scores from a file, or create them.
+    /* \brief Read scores from a file or create them/the file, if necessary.
      */
     std::vector<Score> get_scores();
-
-    QString contents_;      /**< Raw information from the score file. */
 };
 
 #endif // SCOREFILE_HH

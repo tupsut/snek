@@ -1,3 +1,22 @@
+/*
+####################################################################
+# TIE-02201 Ohjelmointi 2: Perusteet, K2019                        #
+# TIE-02207 Programming 2: Basics, S2019                           #
+#                                                                  #
+# Project4: snek: The Revengeance                                  #
+# Program description: "While revenge is served cold and vengeance #
+#                       is served hot revengeance is often seen    #
+#                       served with Cajun with a side of onion     #
+#                       rings and often dumplings in the Orient."  #
+#                       - urbandictionary                          #
+#                                                                  #
+# File: snek.hh                                                    #
+# Description: Declares a class implementing the snek entity.      #
+#                                                                  #
+# Author: Saskia Simisker, 282598, saskia.simisker@tuni.fi         #
+####################################################################
+*/
+
 #ifndef SNEK_HH
 #define SNEK_HH
 
@@ -57,7 +76,7 @@ public:
      *
      * \param[in] food_pos Position of the food element.
      */
-    bool fills_screen(QPointF food_pos) const;
+    bool fills_screen() const;
 
 private:
     std::vector<QGraphicsRectItem*> elements_;  /**< snek parts in the scene. */

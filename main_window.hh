@@ -123,14 +123,14 @@ private:
     QTimer game_timer_;                     /**< Timer for counting time. */
     std::default_random_engine rng_;        /**< Randomizes food locations. */
     QPoint dir_;                            /**< Current direction of motion. */
-    bool pause_state_;                      /**< Is game currently paused? */
-    int points_;                            /**< Counter for eaten food. */
+    bool pause_state_ = false;              /**< Is game currently paused? */
+    int points_ = 0;                        /**< Counter for eaten food. */
     int area_width_ = 20;                   /**< Current game area width. */
     int area_height_ = 20;                  /**< Current game area height. */
     int init_timer_value_ = 800;            /**< Default interval of timer. */
-    int timer_value_;                       /**< Current interval of timer. */
+    int timer_value_ = init_timer_value_;   /**< Current interval of timer. */
     int timer_min_ = 150;                   /**< Minimum interval of timer. */
-    int game_time_elapsed_;                 /**< Counts the time elapsed. */
+    int game_time_elapsed_ = 0;             /**< Counts the time elapsed. */
 };  // class MainWindow
 
 
