@@ -39,10 +39,14 @@ MainWindow::MainWindow(QWidget* parent):
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* event) {
-   if (event->key() == Qt::Key_Up or event->key() == Qt::Key_W) dir_ = UP;
-   if (event->key() == Qt::Key_Left or event->key() == Qt::Key_A) dir_ = LEFT;
-   if (event->key() == Qt::Key_Down or event->key() == Qt::Key_S) dir_ = DOWN;
-   if (event->key() == Qt::Key_Right or event->key() == Qt::Key_D) dir_ = RIGHT;
+   if ((event->key() == Qt::Key_Up or event->key() == Qt::Key_W)
+           and dir_ != DOWN) dir_ = UP;
+   if ((event->key() == Qt::Key_Left or event->key() == Qt::Key_A)
+           and dir_ != RIGHT) dir_ = LEFT;
+   if ((event->key() == Qt::Key_Down or event->key() == Qt::Key_S)
+           and dir_ != UP) dir_ = DOWN;
+   if ((event->key() == Qt::Key_Right or event->key() == Qt::Key_D)
+           and dir_ != LEFT) dir_ = RIGHT;
 }
 
 void MainWindow::on_playButton_clicked() {
@@ -78,7 +82,7 @@ void MainWindow::on_playButton_clicked() {
 }
 
 void MainWindow::moveSnake() {
-    // propagate
+    // propagate body elements' locations
     auto it = snek_.rbegin();
     for (; it != snek_.rend() - 1; ++it) {
         auto elem = *it;
@@ -86,6 +90,7 @@ void MainWindow::moveSnake() {
         elem->setPos(next->pos());
     }
 
+    // update head location
     auto head = snek_.front();
     const QPointF old_head_pos = head->scenePos();
     const QPointF new_head_pos = old_head_pos + dir_;
