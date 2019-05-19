@@ -1,0 +1,72 @@
+== Snek Game ==
+Saskia Simisker, 282598, saskia.simisker@tuni.fi
+
+Basic features:
+- The game is started by pressing the "Play" button. This generates the play
+  field, the head of the snake, one element of food and initialises both
+  the timers which control the snake's motion and record the time elapsed.
+  The game then awaits for an input from the player.
+  - The head of the snake is generated in the approximate centrepoint of the
+    play field; the food element is placed via pseudorandom number generation
+    where the seed is based on current Unix time. The default play field size
+    is 20 x 20.
+  - Colour is used to distinguish between the items on the play field, with
+    food elements being black, the snake's head being lighter green and
+    snake tail segments being darker green.
+- Once the player presses one of the directional buttons (W/A/S/D; arrow keys
+  have been implemented based on Qt docs but appear to not work), the snake
+  begins moving in the given direction. The direction of the snake's motion
+  can be changed by pressing another directional button. Pressing the button
+  for the opposite direction (for example, pressing left when the snake is
+  moving right) is ignored as it would result in instant loss of the game.
+- Whenever the snake moves, a collision check is made to ensure that the
+  snake's head has not collided with another part of the snake.
+- If the snake's head arrives on the same point of the grid as the food
+  element, the food is considered to be eaten. The following happens:
+  - One point is added to the points tally.
+  - The food element is moved to a new random location. If the location is
+  found to be inside the snake, the element is moved again until a suitable
+  location is found.
+  - A new segment of the snake is created, initially located in the same
+  point as the head of the snake. The segment becomes visible after the
+  snake's head moves.
+  - The timer controlling the snake is adjusted to be 5 ms faster than
+  previously.
+- The game has one win condition and one loss condition:
+  - If the player succeeds in filling the entire grid with the snake's body
+  such that there are no more viable spaces for the food to generate, the
+  game is considered to be won.
+  - If the player steers the snake such that it collides into another part of
+  itself, the game is considered to be lost.
+- In both cases, the game ends. All timers stop and a screen is presented,
+  showing the win/loss status, the amount of points gathered, and the time
+  elapsed. Following this, the player is prompted to enter a name for the
+  purpose of saving the score. On some systems, the prompt autofills the
+  current user account's name. If a name is not provided, the score is saved
+  under the name "unknown".
+- Certain buttons in the game window are only useable at certain times.
+  The "Play" button is only used to start the game immediately after program
+  execution; it is disabled following that. While a game is not started yet,
+  the "Pause" and "Restart" buttons are inaccessible; after a game has
+  finished, "Pause" becomes unavailable while "Restart" is available.
+
+Additional features implemented:
+- The snake's speed increases as the game proceeds, at a step of 5 ms/food.
+- There is a high scores system, which records the best 10 scores into a
+  text file in the program directory. High scores are ranked first by the
+  amount of points (the more, the better) and then by the amount of time
+  taken to achieve the point count (the less, the better). High scores can be
+  seen inside the game by pressing the "High Scores" button.
+- The game area is continuous/borderless - upon exiting the game area, the
+  snake reappears on the opposite side of the game area.
+- The width and height of the game area can be adjusted between games by
+  pressing the "Field Size" button. The minimum size is 2, and the maximum is
+  50.
+- A Pause button is implemented, pausing the game progression as well as the
+  internal timer. Upon clicking, it becomes a Resume button and allows the
+  player to resume the game at will.
+- A Restart button is implemented, which clears the game area and starts a
+  new game immediately. This button is also used to start a new game after
+  the player has finished the previous game.
+- Game instructions and a brief introduction to the game are included inside
+  the game, accessible by pressing the "How to Play" button.
